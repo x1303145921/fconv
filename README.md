@@ -14,7 +14,7 @@
   <img alt="version" src="https://img.shields.io/badge/version-1.0.0-black">
   <img alt="license" src="https://img.shields.io/badge/license-MIT-blue">
   <img alt="python" src="https://img.shields.io/badge/python-3.10%2B-brightgreen">
-  <img alt="tests" src="https://img.shields.io/badge/tests-115%20passed-success">
+  <img alt="tests" src="https://img.shields.io/badge/tests-116%20passed-success">
   <img alt="format pairs" src="https://img.shields.io/badge/format%20pairs-201%20verified-success">
 </p>
 
@@ -68,7 +68,7 @@
 
 1. 下载 `fconv-portable-v1.0.0.zip` 并解压（整包解压，别只解一个文件）
 2. 双击 **`启动fconv.vbs`** —— 没有黑窗口，自动起服务并打开浏览器
-3. （可选）双击 **`安装到桌面.bat`** —— 在桌面和「工具箱」里生成带图标的快捷方式
+3. （可选）双击 **`安装到桌面.bat`** —— 在桌面和开始菜单生成带图标的快捷方式
 
 > 需要本机有 **Python 3.10+**；首次运行会自动补装依赖（需要联网一次）。
 > 解压目录里如果有 `python\` 文件夹（内置运行时），则完全免装 Python。
@@ -81,7 +81,7 @@
 | `启动fconv-最小化.bat` | 最小化启动，留一个可查看的最小窗口 |
 | `启动fconv.bat` | 调试窗口启动，出问题看这里 |
 | `停止fconv.bat` | 停止后台服务，释放 8765 端口 |
-| `安装到桌面.bat` | 创建桌面 + 工具箱快捷方式（带新图标） |
+| `安装到桌面.bat` | 创建桌面 + 开始菜单快捷方式（带应用图标） |
 | `下载最新版.bat` | 从 GitHub Releases 拉取最新便携包（三镜像自动切换） |
 | `build-portable.bat` | 自己重新打包一份便携版 |
 | `start.bat` | 英文版启动脚本（给非中文系统） |
@@ -167,9 +167,9 @@ fconv/
 │   └── web/                   # Flask 服务 + 单页界面
 ├── assets/                    # 图标（svg / ico / 多尺寸 png）+ 图标源图
 ├── benchmarks/                # 性能基准 + 201 格式对冒烟测试
-├── scripts/                   # 图标与启动器生成脚本
-├── tests/                     # 单元测试 115 项 + API 端到端
-├── docs/                      # 截图、发布说明、优化报告
+├── scripts/                   # 图标/启动器生成脚本 + 发布前自检 check_release.py
+├── tests/                     # 单元测试 116 项 + API 端到端 + 浏览器验收
+├── docs/                      # 截图、发布说明、验收报告（早期过程文档在 docs/archive/）
 ├── 启动fconv.vbs 等           # 便携版入口套件
 └── build-portable.bat         # 一键打包
 ```
@@ -189,23 +189,32 @@ FFmpeg 的查找顺序：环境变量 `FCONV_FFMPEG` → 项目内 `tools/ffmpeg
 ## 测试与验证
 
 ```bash
-python -m pytest tests/ -q                    # 单元测试（115 项）
+python -m pytest tests/ -q                    # 单元测试（116 项）
 python -m pytest tests/ --cov=src/fconv       # 带覆盖率
 python tests/api_e2e.py                       # API 端到端（需先起服务）
+python tests/ui_check.py                      # 浏览器交互 + 生成截图（需 playwright）
 python benchmarks/smoke_test.py --with-ffmpeg # 201 个格式对真实转换
 python benchmarks/benchmark.py                # 性能基准
+python scripts/check_release.py               # 发布前自检（版本/密钥/链接/图标/编码）
 ```
+
+`tests/ui_check.py` 需要额外装一次 `pip install -e ".[ui]"`（playwright）；
+`scripts/check_release.py` 一条命令回答「现在能不能公开发布」。
 
 当前状态（2026-09-20，本机实测）：
 
 | 项目 | 结果 |
 |---|---|
-| 单元测试 | **115 / 115 通过** |
+| 单元测试 | **116 / 116 通过** |
 | API 端到端 | **14 / 14 通过** |
 | 浏览器交互 | **12 / 12 通过**（含坏文件、刷新后历史仍在、移动端） |
 | 格式对矩阵 | **201 / 201 真实转换通过** |
+| 嗅探口径 | **全部样本均识别成自身格式（0 处不一致）** |
+| 发布前自检 | **硬失败 0 / 软告警 0** |
 | 图片转换平均 | 约 1–25 ms（100px–1920px） |
 | 1920×1080 PNG→JPG | 约 90 ms |
+
+更完整的实测数据与逐条验收自检见 [`docs/验收报告-v1.0.0.md`](docs/验收报告-v1.0.0.md)。
 
 ## 常见问题
 
@@ -237,6 +246,7 @@ git clone https://github.com/x1303145921/fconv.git
 cd fconv
 pip install -e ".[dev]"
 python -m pytest tests/ -q
+python scripts/check_release.py     # 改完记得过一遍发布自检
 ```
 
 代码风格：PEP 8 + type hints；新增格式只要写一个转换器类并声明 `source_formats` / `target_formats`，路由表自动生效。详见 [CONTRIBUTING.md](CONTRIBUTING.md)。
@@ -251,6 +261,6 @@ python -m pytest tests/ -q
 
 ## 许可证
 
-[MIT](LICENSE) © 2026 fconv contributors
+[MIT](LICENSE) © 2026 颜 (<https://github.com/x1303145921>)
 
 第三方组件与许可清单见 [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt)。

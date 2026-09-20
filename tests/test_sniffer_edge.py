@@ -45,6 +45,20 @@ def test_mp4_and_mov_brands(tmp_path):
     assert sniffer.detect(mov) == "mov"
 
 
+def test_ebml_webm_not_reported_as_mkv(tmp_path):
+    """EBML 容器：.webm 与 .mkv 文件头完全一样，只能用扩展名区分。
+
+    旧实现只按魔数返回 mkv，导致 .webm 文件被报成 mkv（界面显示错、批量归类也错）。
+    """
+    ebml = b"\x1a\x45\xdf\xa3" + b"\x00" * 60
+    webm = tmp_path / "v.webm"
+    webm.write_bytes(ebml)
+    mkv = tmp_path / "v.mkv"
+    mkv.write_bytes(ebml)
+    assert sniffer.detect(webm) == "webm"
+    assert sniffer.detect(mkv) == "mkv"
+
+
 def test_docx_keeps_office_name(tmp_path):
     """docx 本质是 ZIP，但界面应显示 docx 而不是 zip。"""
     docx = tmp_path / "报告.docx"

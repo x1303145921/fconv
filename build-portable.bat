@@ -16,6 +16,7 @@ set "ZIPNAME=fconv-portable-v%VERSION%.zip"
 set "ZIPFULL=%OUTDIR%\%ZIPNAME%"
 
 echo [打包] 版本: %VERSION%
+echo [打包] 解压后目录结构: fconv\  (根目录直接是启动入口与 src/)
 echo [打包] 输出: %ZIPFULL%
 
 if exist "%DIST%" rd /s /q "%DIST%"
@@ -28,6 +29,9 @@ copy "%PROJECT%LICENSE" "%DIST%\" >nul
 xcopy "%PROJECT%src" "%DIST%\src\" /E /I /Y /Q >nul
 xcopy "%PROJECT%assets" "%DIST%\assets\" /E /I /Y /Q >nul
 xcopy "%PROJECT%scripts" "%DIST%\scripts\" /E /I /Y /Q >nul
+rem docs\ 里是 README 引用的截图与发布说明：一起打进去，
+rem 这样解压后直接读 README.md 也不会出现红叉图。
+xcopy "%PROJECT%docs" "%DIST%\docs\" /E /I /Y /Q >nul
 
 if exist "%DIST%\src\uploads" rd /s /q "%DIST%\src\uploads"
 for /d /r "%DIST%" %%D in (__pycache__) do @if exist "%%D" rd /s /q "%%D"

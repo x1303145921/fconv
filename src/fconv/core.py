@@ -106,10 +106,6 @@ class ConvertResult:
             input_path=Path(input_path) if input_path is not None else None,
         )
 
-    @classmethod
-    def in_progress(cls, progress: float) -> "ConvertResult":
-        return cls(ok=False, progress=progress)
-
     # ---------------------------------------------------------- 辅助方法
     @property
     def error_message(self) -> str:

@@ -107,13 +107,13 @@ if not exist "assets\icon.ico" goto :missing
 
 set "PWD_DIR=%~dp0"
 set "PWD_DIR=%PWD_DIR:~0,-1%"
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$d=[Environment]::GetFolderPath('Desktop'); $lnk=Join-Path $d 'fconv 文件格式转换.lnk'; if(Test-Path $lnk){Remove-Item $lnk -Force}; $s=(New-Object -ComObject WScript.Shell).CreateShortcut($lnk); $s.TargetPath=(Join-Path $env:PWD_DIR '启动fconv.vbs'); $s.WorkingDirectory=$env:PWD_DIR; $s.IconLocation=(Join-Path $env:PWD_DIR 'assets\icon.ico')+',0'; $s.Description='fconv 文件格式转换工具 - 双击使用'; $s.Save()"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; $name='fconv 文件格式转换.lnk'; $target=(Join-Path $env:PWD_DIR '启动fconv.vbs'); $icon=(Join-Path $env:PWD_DIR 'assets\icon.ico')+',0'; $sh=New-Object -ComObject WScript.Shell; foreach($d in @([Environment]::GetFolderPath('Desktop'), (Join-Path $env:APPDATA 'Microsoft\Windows\Start Menu\Programs'))){ if(-not (Test-Path $d)){ continue }; $lnk=Join-Path $d $name; if(Test-Path $lnk){ Remove-Item $lnk -Force }; $s=$sh.CreateShortcut($lnk); $s.TargetPath=$target; $s.WorkingDirectory=$env:PWD_DIR; $s.IconLocation=$icon; $s.Description='fconv 文件格式转换工具 - 双击使用'; $s.Save(); Write-Output ('  [ok] ' + $lnk) }"
 if errorlevel 1 goto :fail
 set "PWD_DIR="
 
 echo.
-echo  安装完成，桌面已出现「fconv 文件格式转换」图标，双击即可使用。
-echo  提示：图标失效时删除重建即可，不影响本体。
+echo  安装完成：桌面与开始菜单都已生成「fconv 文件格式转换」快捷方式，双击即可使用。
+echo  提示：快捷方式失效时删除重建即可，不影响程序本体；卸载时删掉这两个快捷方式即可。
 pause
 exit /b 0
 
@@ -124,6 +124,73 @@ exit /b 1
 
 :fail
 echo  创建快捷方式失败，可尝试：右键「启动fconv.vbs」→ 发送到 → 桌面快捷方式。
+pause
+exit /b 1
+"""
+
+# 下载器：版本号自动从 pyproject.toml 读，发布新版本时不用再手改本文件。
+DOWNLOAD = r"""@echo off
+chcp 936 >nul
+title fconv - 下载最新版
+cd /d "%~dp0"
+
+rem ============================================
+rem 版本号自动从 pyproject.toml 读取（与 build-portable.bat 同一口径）：
+rem 发布新版本时只改 pyproject.toml，本脚本不用再手改。
+rem 想临时指定版本：先 set FCONV_VER=1.2.3 再运行本脚本。
+rem 注意：下面刻意不用括号块 —— 批处理会在解析整块时就展开 %VER%，
+rem       块内的赋值会被提前展开成空值（踩过的坑）。
+rem ============================================
+set "VER="
+if defined FCONV_VER set "VER=%FCONV_VER%"
+if not defined VER for /f "tokens=2 delims== " %%V in ('findstr /r /c:"^version" "%~dp0pyproject.toml"') do set "VER=%%~V"
+set "VER=%VER:"=%"
+if "%VER%"=="" goto :no_version
+
+set "FILE=fconv-portable-v%VER%.zip"
+set "GHURL=https://github.com/x1303145921/fconv/releases/download/v%VER%/%FILE%"
+
+echo ============================================
+echo   fconv 文件格式转换工具 便携版 v%VER% 下载器
+echo ============================================
+echo 目标文件: %FILE%
+echo.
+
+echo [1/3] 正在从镜像1（ghfast.top）下载...
+curl.exe -f -L --ssl-no-revoke --connect-timeout 10 --max-time 300 -o "%FILE%" "https://ghfast.top/%GHURL%"
+if not exist "%FILE%" (
+    echo [2/3] 镜像1不可用，改用镜像2（gh-proxy.com）...
+    curl.exe -f -L --ssl-no-revoke --connect-timeout 10 --max-time 300 -o "%FILE%" "https://gh-proxy.com/%GHURL%"
+)
+if not exist "%FILE%" (
+    echo [3/3] 镜像2也不可用，尝试直连 GitHub（网络好或开加速器时可用）...
+    curl.exe -f -L --ssl-no-revoke --connect-timeout 10 --max-time 300 -o "%FILE%" "%GHURL%"
+)
+if not exist "%FILE%" (
+    echo.
+    echo [错误] 下载失败，请检查网络后重试；
+    echo        或手动打开 Releases 页面下载：
+    echo        https://github.com/x1303145921/fconv/releases/latest
+    pause
+    exit /b 1
+)
+
+for %%F in ("%FILE%") do (
+    echo.
+    echo 下载完成: %FILE%  （%%~zF 字节）
+)
+echo.
+echo 下一步：右键压缩包 →「全部解压缩」→ 双击「启动fconv.vbs」即用。
+echo        （可选）再双击「安装到桌面.bat」创建桌面/开始菜单快捷方式。
+pause
+exit /b 0
+
+:no_version
+echo.
+echo [错误] 无法从 pyproject.toml 读取版本号。
+echo        请确认本脚本与 pyproject.toml 在同一目录；或先执行：
+echo            set FCONV_VER=1.0.0
+echo        再运行本脚本。
 pause
 exit /b 1
 """
@@ -188,6 +255,11 @@ def main() -> int:
         INSTALL.replace("\n", "\r\n").encode("gbk")
     )
     print("  [ok] 安装到桌面.bat")
+
+    (ROOT / "下载最新版.bat").write_bytes(
+        DOWNLOAD.replace("\n", "\r\n").encode("gbk")
+    )
+    print("  [ok] 下载最新版.bat（版本号运行时从 pyproject.toml 读取）")
 
     print("完成。VBS 请另跑 scripts/build_vbs.py")
     return 0

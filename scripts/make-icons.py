@@ -253,9 +253,15 @@ def main() -> int:
     print("  [ok] icon-256.png")
 
     # --- ICO ---
-    sizes = [(s, s) for s in ICO_SIZES]
-    master.resize((256, 256), Image.LANCZOS).save(ASSETS / "icon.ico", format="ICO", sizes=sizes)
-    master.resize((256, 256), Image.LANCZOS).save(ASSETS / "favicon.ico", format="ICO", sizes=sizes)
+    # 每个尺寸都从 1024 主图单独降采样（而不是先缩到 256 再缩），
+    # 小尺寸的圆边与 f 笔画明显更干净，不再出现块状锯齿。
+    frames = sorted(
+        (master.resize((s, s), Image.LANCZOS) for s in ICO_SIZES),
+        key=lambda f: f.size[0],
+    )
+    ico_top, ico_rest = frames[-1], frames[:-1]
+    ico_top.save(ASSETS / "icon.ico", format="ICO", append_images=ico_rest)
+    ico_top.save(ASSETS / "favicon.ico", format="ICO", append_images=ico_rest)
     print(f"  [ok] icon.ico / favicon.ico ({'/'.join(map(str, ICO_SIZES))})")
 
     for s in (16, 32, 48, 64):

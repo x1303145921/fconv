@@ -44,10 +44,6 @@ class BatchItemResult:
         }
 
 
-# 向后兼容的别名（旧代码 / 文档里叫 BatchResult）
-BatchResult = BatchItemResult
-
-
 class BatchConverter:
     """并发批量转换器。"""
 
@@ -177,6 +173,3 @@ class BatchConverter:
                 archive.write(item.output_path, name)
 
         return results, output_zip
-
-    # 兼容旧名字
-    convert_batch_and_pack = convert_and_pack

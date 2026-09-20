@@ -97,13 +97,14 @@ fconv 的格式路由是数据驱动的，加格式通常只要三步：
 
 ## 提交前的自检清单
 
+- [ ] `python scripts/check_release.py --strict` 无 FAIL / WARN（版本号、密钥、文档链接、图标、启动器编码一把过）
 - [ ] `python -m pytest tests/ -q` 全绿
 - [ ] 新增/修改的行为有对应测试
 - [ ] `python benchmarks/smoke_test.py --with-ffmpeg` 无 FAIL
 - [ ] 没有提交密钥、Token、个人绝对路径（搜一下 `C:\Users`、`D:\`）
 - [ ] 没有提交 `logs/`、`src/uploads/`、`dist-portable/` 等运行产物
 - [ ] 用户可见的文案是中文，且不带堆栈
-- [ ] 版本号只在 `src/fconv/__init__.py` 改一处，别处引用
+- [ ] 版本号只在 `src/fconv/__init__.py` 与 `pyproject.toml` 改（两处必须一致），别处运行时读取
 
 ## 行为准则
 

@@ -19,7 +19,6 @@ import sys
 from pathlib import Path
 
 from . import __version__
-from .core import ErrorCode
 from .router import get_router
 from .sniffer import get_sniffer
 
@@ -119,11 +118,6 @@ def cmd_batch(args: argparse.Namespace) -> int:
     success = sum(1 for item in results if item.ok)
     print(f"\n完成：{success}/{len(results)} 个文件转换成功")
     return 0 if success == len(results) else 1
-
-
-def _relocate(path: Path, out_dir: Path) -> Path:
-    """仅保留给外部调用者的小工具：把产物名算到目标目录下。"""
-    return out_dir / path.name
 
 
 # ------------------------------------------------------------------ 入口

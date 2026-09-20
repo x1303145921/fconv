@@ -3,6 +3,46 @@
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 格式约定：`新增` / `变更` / `修复` / `清理` / `已知限制`。
 
+## 仓库维护 - 2026-09-20（开源前最后一轮全局优化）
+
+### 图标
+
+- **三个入口的图标全部重建并硬刷缓存**：桌面快捷方式、工具箱里的备份快捷方式、
+  开始菜单项统一指向 `assets/icon.ico`；清掉图标/缩略图缓存后逐尺寸（16/24/32/48/
+  64/128/256）复验，无旧图标残留。
+- **ICO 生成改为逐尺寸从 1024 主图降采样**（`scripts/make-icons.py`）：
+  不再「先缩到 256 再缩到 16」，小尺寸圆边与笔画明显更干净。
+
+### 变更
+
+- **`安装到桌面.bat` 同时创建开始菜单项**：以前只建桌面快捷方式，而 README 里写了
+  「桌面和工具箱」——现在行为与文档一致（桌面 + 开始菜单），并提示卸载方式。
+- **`下载最新版.bat` 的版本号改为运行时从 `pyproject.toml` 读取**：
+  修版本号写死点从 2 处减到 1 处（只剩 `src/fconv/__init__.py` + `pyproject.toml`），
+  也支持用环境变量 `FCONV_VER` 临时指定。
+- **`LICENSE` 著作权人统一为仓库作者**（与 README、应用内许可说明同一口径）。
+- **`docs/` 结构整理**：早期过程文档移入 `docs/archive/`，避免与当前版本状态混淆。
+
+### 新增
+
+- **`scripts/check_release.py` 发布前自检**：版本号一致性、密钥/本机路径残留、
+  文档内部链接可达、Python 语法、`.gitignore` 覆盖、启动器编码（GBK+CRLF）、
+  图标尺寸、本机产物未入库——一条命令给出「能不能发」。已接入 CI。
+- **`tests/ui_check.py` 浏览器交互验收**（可选依赖 `pip install -e ".[ui]"`）：
+  真实浏览器跑完上传 → 转换 → 下载 → 刷新后历史仍在 → 错误路径，并顺带生成 README 截图。
+- **`docs/验收报告-v1.0.0.md`**：本轮的检测数据、改动清单与已知限制。
+
+### 修复
+
+- **`.webm` 被识别成 `mkv`**：EBML 容器（Matroska / WebM）文件头完全一样，
+  旧实现只按魔数返回 `mkv`，导致 `.webm` 文件的「真实格式」显示错误、批量归类也错。
+  现在用扩展名消歧（新增 `MAGIC_AMBIGUOUS` 表），冒烟测试新增「嗅探口径校验」防止回归。
+
+### 清理
+
+- 删除无引用代码：`cli._relocate`、`ConvertResult.in_progress`、
+  `batch.BatchResult` / `convert_batch_and_pack` 兼容别名、`server.py` 未使用的 import。
+
 ## [1.0.0] - 2026-09-20
 
 首个公开版本。定位不变：**本地运行、文件不上传的格式转换工具**。
@@ -18,7 +58,7 @@
 - **全格式矩阵冒烟测试** `benchmarks/smoke_test.py`：把声明支持的 **201 个格式对**逐个真跑，
   并对产物做真实性校验（图片能打开、JSON/XML/YAML 能解析、ZIP 非空）。
 - **API 与浏览器自动化验收**：`tests/test_web_api.py`（Flask 测试客户端）与
-  `tests/test_web_api.py` 之外的浏览器交互检查（上传 → 转换 → 下载 → 刷新后历史仍在 → 错误路径）。
+  `tests/ui_check.py`（真实浏览器：上传 → 转换 → 下载 → 刷新后历史仍在 → 错误路径）。
 - **工程规范文件**：`.gitattributes`、`CODE_OF_CONDUCT.md`、`.github` 下 issue / PR 模板与
   CI 工作流、`requirements-dev.txt`、`docs/RELEASE_NOTES-v1.0.0.md`。
 - **`python -m fconv`** 入口，以及 `create_app()` 工厂函数（方便 WSGI 部署）。

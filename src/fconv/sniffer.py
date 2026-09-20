@@ -55,6 +55,14 @@ FTYP_BRANDS: dict[bytes, str] = {
     b"webm": "webm",
 }
 
+# 同一魔数对应多种格式时的消歧表（容器共用文件头）
+MAGIC_AMBIGUOUS: dict[str, frozenset[str]] = {
+    # EBML 容器：MKV 与 WebM 的文件头完全一样，只能靠扩展名分开
+    "mkv": frozenset({"mkv", "webm"}),
+    # ZIP 容器：Office / ODF 文档都是 ZIP，按扩展名报更准确的名字
+    "zip": frozenset({"docx", "odt", "xlsx", "pptx", "odp", "ods"}),
+}
+
 # ---------------------------------------------------------------- 扩展名表
 EXTENSION_MAP: dict[str, str] = {
     # 图片
@@ -115,8 +123,9 @@ class FileSniffer:
         # 1) 魔数优先（改名文件也能识别）
         by_magic = self._match_magic(header)
         if by_magic is not None:
-            # ZIP 容器里的 Office 文档：按扩展名报更准确的名字
-            if by_magic == "zip" and ext_fmt in {"docx", "odt", "xlsx", "pptx"}:
+            # 容器类魔数对应多种格式时，扩展名能消歧就以扩展名为准
+            ambiguous = MAGIC_AMBIGUOUS.get(by_magic)
+            if ambiguous is not None and ext_fmt in ambiguous:
                 return ext_fmt
             return by_magic
 

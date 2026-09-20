@@ -77,7 +77,7 @@ python benchmarks/smoke_test.py --with-ffmpeg  # 201 real conversions
 
 ## License
 
-[MIT](LICENSE) © 2026 fconv contributors.
+[MIT](LICENSE) © 2026 颜 (<https://github.com/x1303145921>).
 Third-party components: see [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt).
 
 > The full documentation (and the UI) is in Chinese; see [README.md](README.md).

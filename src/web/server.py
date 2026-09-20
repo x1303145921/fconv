@@ -37,7 +37,6 @@ import time
 import uuid
 import zipfile
 from pathlib import Path
-from functools import wraps
 from typing import Any
 
 # 允许直接 `python src/web/server.py` 启动（便携版启动脚本就是这么跑的）

@@ -21,7 +21,6 @@ def q(s: str) -> str:
 REPL = {
     "_OBJ_FSO_": q("Scripting." + "FileSystem" + "Object"),
     "_OBJ_SH_": q("WScript." + "Shell"),
-    "_OBJ_XML_": q("MSXML2." + "Server" + "XMLHTTP.6.0"),
 }
 
 

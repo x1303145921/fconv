@@ -30,6 +30,7 @@ from fconv.sniffer import get_sniffer          # noqa: E402
 WORK = ROOT / "benchmarks" / "_smoke"
 router = get_router()
 sniffer = get_sniffer()
+checked_detect: set[str] = set()
 
 
 def make_fixture(fmt: str, path: Path) -> bool:
@@ -159,6 +160,7 @@ def main() -> int:
 
     pairs = list(router.iter_format_pairs())
     passed, failed, skipped = 0, 0, 0
+    detect_mismatch = 0
     rows = []
 
     for src_fmt, dst_fmt in pairs:
@@ -171,6 +173,17 @@ def main() -> int:
             skipped += 1
             rows.append({"pair": f"{src_fmt}->{dst_fmt}", "status": "skip", "detail": "无法造样本"})
             continue
+
+        # 嗅探口径校验：真实样本必须被识别成它自己的格式（一个样本只查一次）
+        if src_fmt not in checked_detect:
+            checked_detect.add(src_fmt)
+            detected = sniffer.detect(src)
+            if detected != src_fmt:
+                detect_mismatch += 1
+                rows.append(
+                    {"pair": src_fmt, "status": "detect-mismatch", "detail": f"识别为 {detected}"}
+                )
+                print(f"  [MISMATCH] {src_fmt} 被识别为 {detected}")
 
         dst = WORK / f"out_{src_fmt}_to_{dst_fmt}.{dst_fmt}"
         started = time.perf_counter()
@@ -195,6 +208,10 @@ def main() -> int:
 
     print("-" * 72)
     print(f"通过 {passed} / 失败 {failed} / 跳过 {skipped}（共 {len(pairs)} 个格式对）")
+    if detect_mismatch:
+        print(f"[!] 有 {detect_mismatch} 种格式的嗅探结果与自身扩展名不一致，见明细")
+    else:
+        print("[OK] 嗅探口径校验：所有样本均被识别成自身格式")
 
     out = ROOT / "benchmarks" / "smoke_results.json"
     out.write_text(
@@ -205,6 +222,7 @@ def main() -> int:
                 "passed": passed,
                 "failed": failed,
                 "skipped": skipped,
+                "detect_mismatch": detect_mismatch,
                 "rows": rows,
             },
             ensure_ascii=False,
@@ -215,7 +233,7 @@ def main() -> int:
     print(f"明细写入 {out}")
 
     shutil.rmtree(WORK, ignore_errors=True)
-    return 0 if failed == 0 else 1
+    return 0 if (failed == 0 and detect_mismatch == 0) else 1
 
 
 if __name__ == "__main__":
