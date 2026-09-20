@@ -1,0 +1,9 @@
+# fconv 运行依赖（核心三件，Web 与 CLI 都需要）
+# 安装：pip install -r requirements.txt
+Pillow>=10.0.0      # 图片读写与转换
+pypdf>=4.0.0        # PDF 文字提取 / PDF 转 HTML
+Flask>=3.0.0        # 本地 Web 服务
+
+# 以下为可选增强，按需取消注释：
+# PyYAML>=6.0       # YAML 参与互转时需要（pip install PyYAML）
+# PyMuPDF>=1.23.0   # PDF 转图片时需要（注意：AGPL-3.0 许可，见 THIRD-PARTY-NOTICES.txt）

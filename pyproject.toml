@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fconv"
+version = "1.0.0"
+description = "本地文件格式转换工具：图片 / 文档 / 视频 / 音频 / PDF 互转，文件不上传"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "fconv contributors" }]
+keywords = ["converter", "image", "pdf", "audio", "video", "offline", "privacy", "cli", "flask"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: Chinese (Simplified)",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+    "Topic :: Utilities",
+]
+
+dependencies = [
+    "Pillow>=10.0.0",
+    "pypdf>=4.0.0",
+    "Flask>=3.0.0",
+]
+
+[project.optional-dependencies]
+# PDF → 图片需要 PyMuPDF（AGPL-3.0，未随本项目分发，请自行评估许可）
+pdf-images = ["PyMuPDF>=1.23.0"]
+# YAML 方向需要 PyYAML
+yaml = ["PyYAML>=6.0"]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "PyYAML>=6.0",
+]
+all = ["PyMuPDF>=1.23.0", "PyYAML>=6.0"]
+
+[project.urls]
+Homepage = "https://github.com/x1303145921/fconv"
+Repository = "https://github.com/x1303145921/fconv"
+Issues = "https://github.com/x1303145921/fconv/issues"
+Changelog = "https://github.com/x1303145921/fconv/blob/main/CHANGELOG.md"
+Documentation = "https://github.com/x1303145921/fconv#readme"
+
+[project.scripts]
+fconv = "fconv.cli:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["fconv*", "web*"]
+
+[tool.setuptools.package-data]
+web = ["*.html"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"
+
+[tool.coverage.run]
+source = ["src/fconv"]
+omit = ["*/tests/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true

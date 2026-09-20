@@ -1,0 +1,25 @@
+' ============================================================
+' fconv · 便携启动器（无黑窗口，双击即用）
+'
+' 本脚本只做一件事：把「启动fconv-最小化.bat」隐藏启动。
+' 依赖检查、端口清理、等服务就绪、打开浏览器，全部由那个
+' bat 负责，这样逻辑只有一份，不会两处漂移。
+' ============================================================
+Option Explicit
+
+Dim fso, shell, baseDir, batPath
+
+Set fso = CreateObject(_OBJ_FSO_)
+Set shell = CreateObject(_OBJ_SH_)
+
+baseDir = fso.GetParentFolderName(WScript.ScriptFullName)
+batPath = baseDir & "\启动fconv-最小化.bat"
+
+If Not fso.FileExists(batPath) Then
+    MsgBox "找不到启动脚本（启动fconv-最小化.bat）。" & vbCrLf & vbCrLf & _
+           "请确认已完整解压，且启动器与 src 文件夹位于同一目录。", 16, "fconv"
+    WScript.Quit 1
+End If
+
+shell.CurrentDirectory = baseDir
+shell.Run """" & batPath & """", 0, False

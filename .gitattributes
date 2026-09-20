@@ -1,0 +1,25 @@
+# 统一文本属性，避免不同系统 clone 后出现整文件 diff
+* text=auto eol=lf
+
+# Windows 启动器（bat/cmd/vbs）为 GBK + CRLF，必须按二进制原样保存，
+# 否则任何换行归一化都会让它们在中文字符下出现乱码。
+*.bat binary
+*.cmd binary
+*.vbs binary
+
+# 二进制资源
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.zip binary
+*.pdf binary
+
+# 图标矢量源按文本处理，方便 review
+*.svg text eol=lf
+
+# GitHub 语言统计：文档不计入代码占比
+*.md linguist-documentation
+*.txt linguist-documentation

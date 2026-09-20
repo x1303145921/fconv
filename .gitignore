@@ -1,0 +1,64 @@
+# fconv 仓库忽略规则
+# 目标：仓库里只有源码和文档，没有本机产物、缓存、密钥
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# 打包 / 构建产物
+build/
+dist/
+*.egg-info/
+.eggs/
+sdist/
+wheels/
+
+# 虚拟环境
+venv/
+env/
+ENV/
+.venv/
+
+# ---------- 测试与覆盖率 ----------
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# ---------- 本机运行产物（不会进仓库） ----------
+# Web 接口的临时上传与转换产物
+src/uploads/
+# 运行日志与转换历史（history.jsonl / fconv.log）
+logs/
+# 基准与冒烟测试的输出
+benchmarks/benchmark_results.json
+benchmarks/smoke_results.json
+benchmarks/_work/
+benchmarks/_smoke/
+# 便携版打包产物
+dist-portable/
+
+# ---------- 编辑器 / 系统 ----------
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------- 密钥与本机配置 ----------
+.env
+.env.local
+*.local.json
+secrets.json
+
+# ---------- 大体积测试素材（如需自测请本地生成） ----------
+tests/fixtures/*.mp4
+tests/fixtures/*.mov
+tests/fixtures/*.avi
+tests/fixtures/*.mkv

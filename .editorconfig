@@ -1,0 +1,35 @@
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.py]
+indent_style = space
+indent_size = 4
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.toml]
+indent_size = 4
+
+[*.yml]
+indent_size = 2
+
+[*.json]
+indent_size = 2
+
+# Windows 启动器是 GBK + CRLF，别让编辑器把它们转成 UTF-8/LF，
+# 否则中文会变乱码、bat 解析会出问题。
+[*.bat]
+charset = gbk
+end_of_line = crlf
+
+[*.cmd]
+charset = gbk
+end_of_line = crlf
+
+[*.vbs]
+charset = gbk
+end_of_line = crlf
