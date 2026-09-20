@@ -23,3 +23,8 @@
 # GitHub 语言统计：文档不计入代码占比
 *.md linguist-documentation
 *.txt linguist-documentation
+
+# 面向 Windows 记事本的 README.txt：与启动器同一口径，必须 GBK + CRLF。
+# 上面的 `* text=auto eol=lf` 会把它归一化成 LF，导致 Linux 克隆后
+# check_release.py 的「启动器编码」检查失败（CI 实测踩到），这里显式盖掉。
+README.txt text eol=crlf
