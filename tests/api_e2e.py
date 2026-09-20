@@ -1,10 +1,18 @@
 """端到端 API 验收测试：起服务后跑本脚本。"""
 import io
 import json
+import sys
 import time
 import urllib.request
 import urllib.error
 from pathlib import Path
+
+# Windows 控制台窄编码（cp1252 / cp936 等）编不出 UTF-8 中文，先统一改成 UTF-8。
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, OSError):  # pragma: no cover - 非文本流时跳过
+        pass
 
 BASE = "http://127.0.0.1:8765"
 

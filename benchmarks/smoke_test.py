@@ -22,7 +22,16 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
+# Windows 控制台（cp1252 / cp936 等）默认编不出 UTF-8 中文，直接抛
+# UnicodeEncodeError 把脚本打断（GitHub Actions 的 windows-latest 实测踩到）。
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, OSError):  # pragma: no cover - 非文本流时跳过
+        pass
+
 from fconv import __version__                  # noqa: E402
+from fconv.core import ErrorCode               # noqa: E402
 from fconv.ffmpeg import find_ffmpeg           # noqa: E402
 from fconv.router import get_router            # noqa: E402
 from fconv.sniffer import get_sniffer          # noqa: E402
@@ -191,6 +200,16 @@ def main() -> int:
         ms = (time.perf_counter() - started) * 1000
 
         if not result.ok:
+            # 可选依赖没装（如 PyMuPDF / PyYAML）不算失败：本机环境跑不了这个方向，
+            # 跳过并记原因，与「没装 FFmpeg 就跳过音视频」同一口径。
+            if result.error_code == ErrorCode.DEPENDENCY_MISSING:
+                skipped += 1
+                rows.append({
+                    "pair": f"{src_fmt}->{dst_fmt}", "status": "skip",
+                    "detail": f"缺可选依赖：{result.message}",
+                })
+                print(f"  [SKIP] {src_fmt:>5s} -> {dst_fmt:<5s} 缺可选依赖：{result.message[:48]}")
+                continue
             failed += 1
             rows.append({"pair": f"{src_fmt}->{dst_fmt}", "status": "fail", "detail": result.message})
             print(f"  [FAIL] {src_fmt:>5s} -> {dst_fmt:<5s} {result.message[:60]}")

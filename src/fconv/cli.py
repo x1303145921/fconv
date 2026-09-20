@@ -22,6 +22,14 @@ from . import __version__
 from .router import get_router
 from .sniffer import get_sniffer
 
+# Windows 控制台（cp1252 / cp936 等）默认编不出 UTF-8 中文（GitHub Actions 的
+# windows-latest 实测踩到 UnicodeEncodeError）。先把输出流改成 UTF-8，再干活。
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, OSError):  # pragma: no cover - 非文本流时跳过
+        pass
+
 OK_MARK = "[OK]"
 FAIL_MARK = "[FAIL]"
 

@@ -576,6 +576,13 @@ def create_app() -> Flask:
 
 def run_server(host: str = "127.0.0.1", port: int | None = None, debug: bool = False) -> None:
     port = port or DEFAULT_PORT
+    # 启动横幅带中文：Windows 控制台若是 cp1252 等窄编码会直接抛 UnicodeEncodeError，
+    # 先把标准输出改成 UTF-8。
+    for _stream in (sys.stdout, sys.stderr):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, OSError):  # pragma: no cover - 非文本流时跳过
+            pass
     cleanup_uploads()
     logger.info("启动 fconv %s：http://%s:%s（日志：%s）", __version__, host, port, log_file)
     print(f"[fconv] v{__version__} 已启动: http://{host}:{port}")

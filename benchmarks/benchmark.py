@@ -21,6 +21,13 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
+# Windows 控制台窄编码（cp1252 / cp936 等）编不出 UTF-8 中文，先统一改成 UTF-8。
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, OSError):  # pragma: no cover - 非文本流时跳过
+        pass
+
 from fconv import __version__                     # noqa: E402
 from fconv.batch import BatchConverter            # noqa: E402
 from fconv.ffmpeg import find_ffmpeg              # noqa: E402

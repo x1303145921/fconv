@@ -23,6 +23,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
+# Windows 控制台（cp1252 / cp936 等）默认编不出 UTF-8 中文，直接抛
+# UnicodeEncodeError 把脚本打断（GitHub Actions 的 windows-latest 实测踩到）。
+# 统一把输出流改成 UTF-8，管道重定向下同样生效。
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="replace")
+    except (AttributeError, OSError):  # pragma: no cover - 非文本流时跳过
+        pass
+
 SKIP_DIRS = {
     ".git", "__pycache__", ".pytest_cache", "node_modules",
     "uploads", "dist-portable", "build", "dist", "_work", "_smoke",
