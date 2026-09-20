@@ -60,7 +60,7 @@ Windows 10/11 · Python 3.10+ · Pillow / pypdf / Flask
 
 | 项目 | 结果 |
 |---|---|
-| 单元测试 | 115 / 115 通过 |
+| 单元测试 | 116 / 116 通过 |
 | API 端到端 | 14 / 14 通过 |
 | 浏览器交互 | 12 / 12 通过 |
 | 格式对矩阵 | 201 / 201 通过 |
@@ -78,10 +78,15 @@ Windows 10/11 · Python 3.10+ · Pillow / pypdf / Flask
 
 ## 许可证
 
-MIT © 2026 fconv contributors
+MIT © 2026 颜 (<https://github.com/x1303145921>)
 第三方组件见 `THIRD-PARTY-NOTICES.txt`。
 
 ## 校验
 
-下载后建议核对 SHA256（发布时在 Release 页给出）。便携包不包含任何可执行二进制，
-只有 Python 源码、脚本与图标资源。
+`fconv-portable-v1.0.0.zip`（409,048 字节）
+
+```
+SHA256: D4D27BA642EB8E63CA911979D2400A97C503A0E40752AD6F3E2E01AD8171E659
+```
+
+便携包不包含任何可执行二进制，只有 Python 源码、脚本与图标资源；文件不上传、程序不联网。
