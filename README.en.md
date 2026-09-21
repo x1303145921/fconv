@@ -70,7 +70,7 @@ Windows 10/11 · Python 3.10+ · Pillow, pypdf, Flask · optional PyYAML, PyMuPD
 ## Tests
 
 ```bash
-python -m pytest tests/ -q                     # 115 unit tests
+python -m pytest tests/ -q                     # 116 unit tests
 python tests/api_e2e.py                        # 14 API checks (server running)
 python benchmarks/smoke_test.py --with-ffmpeg  # 201 real conversions
 ```
